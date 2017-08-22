@@ -2,7 +2,8 @@ import numpy as np
 import cv2 as cv
 
 # load the table image
-image = cv.imread("table.jpg")
+folder = "test/"
+image = cv.imread(folder + "table.jpg")
 
 # Resize image
 # size = (800, 900) # rows and columns in image
@@ -96,19 +97,58 @@ for i in range(len(contours)):
         cv.rectangle(resized, (bound_rect[i][0], bound_rect[i][1]) , (bound_rect[i][0] + bound_rect[i][2], bound_rect[i][1] + bound_rect[i][3]) , (0, 255, 0), 1, 8, 0)
 
 # =====================================================
+def sortLines(lines):
+        horizontal_lines= []
+        vertical_lines = []
+
+        for i in range(len(lines)):
+                # first check if the line is horizontal or vertical
+                if abs(lines[i][0] - lines[i][2]) < 2:
+                        vertical_lines.append(lines[i])
+                elif abs(lines[i][1] - lines[i][3]) < 2:
+                        horizontal_lines.append(lines[i])
+
+        return horizontal_lines, vertical_lines
+
+def removeDuplicates(lines, t):
+        for i in range(len(lines)):
+                for j in range(i + 1, len(lines)):
+                        if t == 0: # horizontal
+                                indNum1 = 1
+                                indNum2 = 3
+                        elif t == 1: # vertical
+                                indNum1 = 0
+                                indNum2 = 2
+                        if abs(lines[i][indNum1] - lines[j][indNum1]) < 2 and abs(lines[i][indNum2] - lines[j][indNum2]) < 2:
+                                del lines[j]
+                                j -= 1
+
 # Extract tables
 for i in range(len(regions_of_interest)):
-        edges = cv.Canny(regions_of_interest[i], 200, 300, apertureSize = 3) # edge detection
-        lines = cv.HoughLinesP(edges, 1, np.pi/180, 120, minLineLength = 70, maxLineGap = 20)
+        edges = cv.Canny(regions_of_interest[i], 200, 300, apertureSize = 3) # edge detection - edges include lines, curves, etc.
+        lines = cv.HoughLinesP(edges, 1, np.pi/180, 120, minLineLength = 70, maxLineGap = 20) # line detection
 
+        table_borders = []
         # print lines
         for j in range(len(lines)):
-                l = lines[j][0].tolist()
-                print l
-                cv.line(regions_of_interest[i], (l[0], l[1]), (l[2], l[3]), (0, 0, 255), 2)
+                table_borders.append(lines[j][0].tolist())
+                # print table_borders[j]
+
+        (horizontal_borders, vertical_borders) = sortLines(table_borders)
+        removeDuplicates(horizontal_borders, 0)
+        removeDuplicates(vertical_borders, 1)
+        print len(horizontal_borders)
+        print len(vertical_borders)
+
+        for border in horizontal_borders:
+                cv.line(regions_of_interest[i], (border[0], border[1]), (border[2], border[3]), (0, 0, 255), 2)
+
+        for border in vertical_borders:
+                cv.line(regions_of_interest[i], (border[0], border[1]), (border[2], border[3]), (0, 0, 255), 2)
 
         cv.imshow("roi", regions_of_interest[i])
         cv.waitKey(0)
+        print
 
 # =====================================================
 # cv.imshow("resized", resized)
