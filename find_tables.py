@@ -43,13 +43,13 @@ def isolate_lines(src, structuring_element):
         cv.erode(src, structuring_element, src, (-1, -1)) # makes white spots smaller
         cv.dilate(src, structuring_element, src, (-1, -1)) # makes white spots bigger
 
-horizontal_size = horizontal.shape[1] / scale
+horizontal_size = int(horizontal.shape[1] / scale)
 # create structure element
 horizontal_structure = cv.getStructuringElement(cv.MORPH_RECT, (horizontal_size, 1))
 # isolate lines
 isolate_lines(horizontal, horizontal_structure)
 
-vertical_size = vertical.shape[0] / scale
+vertical_size = int(vertical.shape[0] / scale)
 # create structure element
 vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (1, vertical_size))
 # isolate lines
@@ -110,40 +110,41 @@ def sortLines(lines):
 
         return horizontal_lines, vertical_lines
 
-def removeDuplicates(lines, t):
+distance_threshold = 3 
+def removeDuplicates(lines):
+        print(lines)
         for i in range(len(lines)):
                 for j in range(i + 1, len(lines)):
-                        if t == 0: # horizontal
-                                indNum1 = 1
-                                indNum2 = 3
-                        elif t == 1: # vertical
-                                indNum1 = 0
-                                indNum2 = 2
-                        if abs(lines[i][indNum1] - lines[j][indNum1]) < 2 and abs(lines[i][indNum2] - lines[j][indNum2]) < 2:
-                                del lines[j]
-                                j -= 1
+                       if j >= len(lines):
+                                continue
 
+                     score = 0 
+                     for coord in range(len(lines[i])):
+                               if abs(lines[i][coord] - lines[j][coord]) <= distance_threshold:
+                                        score += 1
+
+                       if score == len(lines[i]):
+                               lines.pop(j)
 # Extract tables
 for i in range(len(regions_of_interest)):
         edges = cv.Canny(regions_of_interest[i], 200, 300, apertureSize = 3) # edge detection - edges include lines, curves, etc.
         lines = cv.HoughLinesP(edges, 1, np.pi/180, 120, minLineLength = 70, maxLineGap = 20) # line detection
 
         table_borders = []
-        # print lines
+		# print lines
         for j in range(len(lines)):
                 table_borders.append(lines[j][0].tolist())
-                # print table_borders[j]
 
         (horizontal_borders, vertical_borders) = sortLines(table_borders)
-        removeDuplicates(horizontal_borders, 0)
-        removeDuplicates(vertical_borders, 1)
-        print len(horizontal_borders)
-        print len(vertical_borders)
+        removeDuplicates(horizontal_borders)
+        removeDuplicates(vertical_borders)
 
         for border in horizontal_borders:
                 cv.line(regions_of_interest[i], (border[0], border[1]), (border[2], border[3]), (0, 0, 255), 2)
 
+        print()
         for border in vertical_borders:
+                print(border)
                 cv.line(regions_of_interest[i], (border[0], border[1]), (border[2], border[3]), (0, 0, 255), 2)
 
         cv.imshow("roi", regions_of_interest[i])
