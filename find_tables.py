@@ -12,8 +12,8 @@ resized = image.copy()
 
 # Convert resized image to grayscale
 if len(image.shape) == 3:
-	# print "Image has 3 channels"
-	grayscale_img = cv.cvtColor(resized, cv.COLOR_BGR2GRAY)
+        # print "Image has 3 channels"
+        grayscale_img = cv.cvtColor(resized, cv.COLOR_BGR2GRAY)
 
 # =====================================================
 # Adaptive thresholding
@@ -110,28 +110,27 @@ def sortLines(lines):
 
         return horizontal_lines, vertical_lines
 
-distance_threshold = 3 
+distance_threshold = 3
 def removeDuplicates(lines):
-        print(lines)
         for i in range(len(lines)):
                 for j in range(i + 1, len(lines)):
-                       if j >= len(lines):
+                        if j >= len(lines):
                                 continue
 
-                     score = 0 
-                     for coord in range(len(lines[i])):
-                               if abs(lines[i][coord] - lines[j][coord]) <= distance_threshold:
+                        score = 0
+                        for coord in range(len(lines[i])):
+                                if abs(lines[i][coord] - lines[j][coord]) <= distance_threshold:
                                         score += 1
 
-                       if score == len(lines[i]):
-                               lines.pop(j)
+                        if score == len(lines[i]):
+                                lines.pop(j)
 # Extract tables
 for i in range(len(regions_of_interest)):
         edges = cv.Canny(regions_of_interest[i], 200, 300, apertureSize = 3) # edge detection - edges include lines, curves, etc.
         lines = cv.HoughLinesP(edges, 1, np.pi/180, 120, minLineLength = 70, maxLineGap = 20) # line detection
 
         table_borders = []
-		# print lines
+        # print lines
         for j in range(len(lines)):
                 table_borders.append(lines[j][0].tolist())
 
