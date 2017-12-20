@@ -1,7 +1,11 @@
 import numpy as np
 import cv2 as cv
 import utils
+from table import Table
 
+# =====================================================
+# IMAGE LOADING
+# =====================================================
 # Load the image
 folder = "data/"
 image = cv.imread(folder + "table.jpg")
@@ -16,8 +20,10 @@ if len(image.shape) == NUM_CHANNELS:
     grayscale = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
 # =====================================================
-# Adaptive thresholding
+# IMAGE FILTERING (using adaptive thresholding)
+# =====================================================
 """
+ADAPTIVE THRESHOLDING
 Thresholding changes pixels' color values to a specified pixel value if the current pixel value
 is less than a threshold value, which could be:
 
@@ -36,19 +42,21 @@ THRESHOLD_CONSTANT = 0
 filtered = cv.adaptiveThreshold(~grayscale, MAX_THRESHOLD_VALUE, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, BLOCK_SIZE, THRESHOLD_CONSTANT)
 
 # =====================================================
-# Isolating lines
+# LINE ISOLATION
+# =====================================================
 """
+HORIZONTAL AND VERTICAL LINE ISOLATION
 To isolate the vertical and horizontal lines, 
 
 1. Set a scale.
 2. Create a structuring element.
 3. Isolate the lines by eroding and then dilating the image.
 """
+SCALE = 15
 
+# Isolate horizontal and vertical lines using morphological operations
 horizontal = filtered.copy()
 vertical = filtered.copy()
-
-SCALE = 15
 
 horizontal_size = int(horizontal.shape[1] / SCALE)
 horizontal_structure = cv.getStructuringElement(cv.MORPH_RECT, (horizontal_size, 1))
@@ -59,6 +67,8 @@ vertical_structure = cv.getStructuringElement(cv.MORPH_RECT, (1, vertical_size))
 utils.isolate_lines(vertical, vertical_structure)
 
 # =====================================================
+# TABLE EXTRACTION
+# =====================================================
 # Create an image mask with just the horizontal 
 # and vertical lines in the image
 mask = horizontal + vertical
@@ -67,49 +77,30 @@ mask = horizontal + vertical
 (_, contours, _) = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
 # Find intersections between the lines
-corners = cv.bitwise_and(horizontal, vertical)
+intersections = cv.bitwise_and(horizontal, vertical)
 
-# =====================================================
-MIN_TABLE_AREA = 100 # min table area to be considered a table
-EPSILON = 3 # epsilon value for contour approximation
+# Extract tables
 tables = [] # list of tables
-table_joints = [] # list of locations of table joints
 for i in range(len(contours)):
-    area = cv.contourArea(contours[i])
-
-    if (area < MIN_TABLE_AREA):
-        continue
-
-    # approxPolyDP approximates a polygonal curve within the specified precision
-    curve = cv.approxPolyDP(contours[i], EPSILON, True)
-
-    # boundingRect calculates the bounding rectangle of a point set (eg. a curve)
-    rect = cv.boundingRect(curve) # format of each rect: x, y, w, h
-
-    # Find the number of joints in each region of interest (ROI)
-    # format: image_mat[rect.x: rect.x + rect.w, rect.y: rect.y + rect.h]
-    corner_roi = corners[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]]
-    (_, possible_table_joints, _) = cv.findContours(corner_roi, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)
-
-    # Determines the number of table joints in the image
-    # If less than 5 table joints, then the image
-    # is likely not a table
-    if len(possible_table_joints) < 5:
-        continue
+    (rect, table_joints) = utils.verify_table(contours[i], intersections)
 
     # Store the table images in a list
-    tables.append( image[rect[1]:rect[1] + rect[3] , rect[0]:rect[0] + rect[2]] )
+    table = Table(rect[0], rect[1], rect[2], rect[3])
+    tables.append(table)
 
-    # Get an ndarray of the coordinates of the table joints
-    joint_coordinates = []
-    for i in range(len(possible_table_joints)):
-        joint_coordinates.append(possible_table_joints[i][0])
-    joint_coordinates = np.asarray(joint_coordinates)
+    # Get an n-dimensional array of the coordinates of the table joints
+    joint_coords = []
+    for i in range(len(table_joints)):
+        joint_coords.append(table_joints[i][0][0])
+    joint_coords = np.asarray(joint_coords)
+    table.joints = joint_coords
 
-#    resized_copy = resized.copy()
-#    cv.rectangle(resized_copy, (rect[0], rect[1]) , (rect[0] + rect[2], rect[1] + rect[3]) , (0, 255, 0), 1, 8, 0)
+    print(table.joints)
 
-# =====================================================
+    cv.rectangle(image, (table.x, table.y), (table.x + table.w, table.y + table.h), (0, 255, 0), 1, 8, 0)
+    cv.imshow("tables", image)
+    cv.waitKey(0)
+
 # Identify table borders on tables
 #for i in range(len(regions_of_interest)):
 #    edges = cv.Canny(regions_of_interest[i], 200, 300, apertureSize = 3) # edge detection - edges include lines, curves, etc.
