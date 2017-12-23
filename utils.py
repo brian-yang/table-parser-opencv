@@ -42,7 +42,7 @@ def verify_table(contour, intersections):
 
 ## Remove duplicate horizontal and vertical lines
 #DISTANCE_THRESHOLD = 3
-#def removeDuplicates(lines):
+#def remove_duplicates(lines):
 #    for i in range(len(lines)):
 #        for j in range(i + 1, len(lines)):
 #            if j >= len(lines):
@@ -57,7 +57,7 @@ def verify_table(contour, intersections):
 #                lines.pop(j)
 #
 ## Get the horizontal and vertical lines in the table image
-#def sortLines(lines):
+#def sort_lines(lines):
 #    horizontal_lines= []
 #    vertical_lines = []
 #

@@ -70,32 +70,40 @@ utils.isolate_lines(vertical, vertical_structure)
 # TABLE EXTRACTION
 # =====================================================
 # Create an image mask with just the horizontal 
-# and vertical lines in the image
+# and vertical lines in the image. Then find
+# all contours in the mask.
 mask = horizontal + vertical
-
-# Find all contours in the mask
 (_, contours, _) = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
 # Find intersections between the lines
+# to determine if the intersections are table joints.
 intersections = cv.bitwise_and(horizontal, vertical)
 
-# Extract tables
+# Get tables from the images
 tables = [] # list of tables
 for i in range(len(contours)):
+    # Verify that region of interest is a table
     (rect, table_joints) = utils.verify_table(contours[i], intersections)
 
-    # Store the table images in a list
+    # Create a new instance of a table
     table = Table(rect[0], rect[1], rect[2], rect[3])
-    tables.append(table)
-
+ 
     # Get an n-dimensional array of the coordinates of the table joints
     joint_coords = []
     for i in range(len(table_joints)):
         joint_coords.append(table_joints[i][0][0])
     joint_coords = np.asarray(joint_coords)
-    table.joints = joint_coords
 
-    print(table.joints)
+    # Returns indices of coordinates in sorted order
+    # Sorts based on parameters (aka keys) starting from the last parameter, then second-to-last, etc
+    sorted_indices = np.lexsort((joint_coords[:, 0], joint_coords[:, 1]))
+    joint_coords = joint_coords[sorted_indices]
+
+    # Store joint coordinates in the table instance
+    table.set_joints(joint_coords)
+    table.print_joints()
+
+    tables.append(table)
 
     cv.rectangle(image, (table.x, table.y), (table.x + table.w, table.y + table.h), (0, 255, 0), 1, 8, 0)
     cv.imshow("tables", image)
@@ -111,7 +119,7 @@ for i in range(len(contours)):
 #    for j in range(len(lines)):
 #        table_borders.append(lines[j][0].tolist())
 #
-#    (horizontal_borders, vertical_borders) = utils.sortLines(table_borders)
+#    (horizontal_borders, vertical_borders) = utils.sort_lines(table_borders)
 #
 #    for border in horizontal_borders:
 #        cv.line(regions_of_interest[i], (border[0], border[1]), (border[2], border[3]), (0, 0, 255), 2)
