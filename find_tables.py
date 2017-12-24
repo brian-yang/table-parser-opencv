@@ -105,6 +105,8 @@ for i in range(len(contours)):
 
     tables.append(table)
 
+    print(table.get_table_entries())
+
     cv.rectangle(image, (table.x, table.y), (table.x + table.w, table.y + table.h), (0, 255, 0), 1, 8, 0)
     cv.imshow("tables", image)
     cv.waitKey(0)
