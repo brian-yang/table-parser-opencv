@@ -44,8 +44,8 @@ class Table:
             print(row)
         print("]")
 
-    # Finds table entries by using the coordinates
-    # of the table joints to find the ROI of each table entry in the table image.
+    # Finds the bounds of table entries in the image by
+    # using the coordinates of the table joints.
     def get_table_entries(self):
         if self.joints == None:
             print("Joint coordinates not found.")
@@ -57,26 +57,37 @@ class Table:
 
         return entry_coords
 
-    # Finds the bounds of each table entry ROI
+    # Finds the bounds of table entries
     # in each row based on the given sets of joints.
     def get_entry_bounds_in_row(self, joints_A, joints_B):
         row_entries = []
 
-        # Since the sets of joints may not have
-        # the same number of points
-        # we pick a set to define the row by.
+        # Since the sets of joints may not have the same 
+        # number of points, we pick the set with a lower number 
+        # of points to find the bounds from.
         if len(joints_A) <= len(joints_B):
-            defining_joints = joints_A
-            helper_joints = joints_B
+            defining_bounds = joints_A
+            helper_bounds = joints_B
         else:
-            defining_joints = joints_B
-            helper_joints = joints_A
+            defining_bounds = joints_B
+            helper_bounds = joints_A
 
-        for i in range(0, len(defining_joints) - 1):
-            x = defining_joints[i][0]
-            y = defining_joints[i][1]
-            w = defining_joints[i + 1][0] - x # helper_joints's (i + 1)th coordinate may not be the lower-right corner
-            h = abs(helper_joints[0][1] - y) # helper_joints has the same y-coordinate for all of its elements
+        for i in range(0, len(defining_bounds) - 1):
+            x = defining_bounds[i][0]
+            y = defining_bounds[i][1]
+            w = defining_bounds[i + 1][0] - x # helper_bounds's (i + 1)th coordinate may not be the lower-right corner
+            h = helper_bounds[0][1] - y # helper_bounds has the same y-coordinate for all of its elements
+
+            # If the height is negative that means the
+            # defining bound is the lower left-hand corner
+            # And since we want the UPPER left-hand corner
+            # We make the height positive and subtract the positive height
+            # from the y-coordinate of the lower left-hand-corner
+            # to find the y-coordinate of the upper right-hand corner.
+            if h < 0:
+                h = -h
+                y = y - h
+
             row_entries.append([x, y, w, h])
 
         return row_entries

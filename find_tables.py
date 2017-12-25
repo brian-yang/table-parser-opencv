@@ -105,11 +105,25 @@ for i in range(len(contours)):
 
     tables.append(table)
 
-    print(table.get_table_entries())
+    #print(table.get_table_entries())
 
-    cv.rectangle(image, (table.x, table.y), (table.x + table.w, table.y + table.h), (0, 255, 0), 1, 8, 0)
-    cv.imshow("tables", image)
+    #cv.rectangle(image, (table.x, table.y), (table.x + table.w, table.y + table.h), (0, 255, 0), 1, 8, 0)
+    #cv.imshow("tables", image)
+    #cv.waitKey(0)
+
+for table in tables:
+    table_entries = table.get_table_entries()
+
+    table_roi = image[table.y:table.y + table.h, table.x:table.x + table.w]
+    cv.imshow("table", table_roi)
     cv.waitKey(0)
+
+    for row in table_entries:
+        for entry in row:
+            print(entry)
+            entry_roi = table_roi[entry[1]:entry[1] + entry[3], entry[0]:entry[0] + entry[2]]
+            cv.imshow("entry", entry_roi)
+            cv.waitKey(0)
 
 # Identify table borders on tables
 #for i in range(len(regions_of_interest)):
