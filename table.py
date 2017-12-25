@@ -78,12 +78,9 @@ class Table:
             w = defining_bounds[i + 1][0] - x # helper_bounds's (i + 1)th coordinate may not be the lower-right corner
             h = helper_bounds[0][1] - y # helper_bounds has the same y-coordinate for all of its elements
 
-            # If the height is negative that means the
-            # defining bound is the lower left-hand corner
-            # And since we want the UPPER left-hand corner
-            # We make the height positive and subtract the positive height
-            # from the y-coordinate of the lower left-hand-corner
-            # to find the y-coordinate of the upper right-hand corner.
+            # If the calculated height is less than 0, 
+            # make the height positive and
+            # use the y-coordinate of the row above for the bounds
             if h < 0:
                 h = -h
                 y = y - h
