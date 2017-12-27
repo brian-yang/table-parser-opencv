@@ -41,7 +41,7 @@ class Table:
 
         print("[")
         for row in self.joints:
-            print(row)
+            print("\t" + str(row))
         print("]")
 
     # Finds the bounds of table entries in the image by

@@ -2,6 +2,8 @@ import numpy as np
 import cv2 as cv
 import utils
 from table import Table
+import tesserocr
+from PIL import Image
 
 # =====================================================
 # IMAGE LOADING
@@ -105,11 +107,13 @@ for i in range(len(contours)):
 
     tables.append(table)
 
-    #print(table.get_table_entries())
+    print(table.get_table_entries())
 
     #cv.rectangle(image, (table.x, table.y), (table.x + table.w, table.y + table.h), (0, 255, 0), 1, 8, 0)
     #cv.imshow("tables", image)
     #cv.waitKey(0)
+
+utils.mkdir("build/images")
 
 for table in tables:
     table_entries = table.get_table_entries()
@@ -118,12 +122,22 @@ for table in tables:
     cv.imshow("table", table_roi)
     cv.waitKey(0)
 
+    cv.imwrite("build/images/table.jpg", table_roi)
+
     for row in table_entries:
         for entry in row:
-            print(entry)
             entry_roi = table_roi[entry[1]:entry[1] + entry[3], entry[0]:entry[0] + entry[2]]
             cv.imshow("entry", entry_roi)
             cv.waitKey(0)
+            cv.imwrite("build/images/test.jpg", entry_roi)
+
+image = Image.open("build/images/test.jpg")
+print(tesserocr.image_to_text(image))
+#with PyTessBaseAPI() as api:
+    #api.SetImageFile("build/images/test.jpg")
+    #print(api.GetUTF8Text())
+    #print(api.AllWordConfidences())
+
 
 # Identify table borders on tables
 #for i in range(len(regions_of_interest)):

@@ -1,4 +1,5 @@
 import cv2 as cv
+import os
 
 """
 Apply morphology operations
@@ -39,6 +40,13 @@ def verify_table(contour, intersections):
         return None
 
     return rect, possible_table_joints
+
+"""
+Creates the build directory if it doesn't already exist."
+"""
+def mkdir(path):
+    if not os.path.exists("build/images/"):
+        os.makedirs("build/images/")
 
 ## Remove duplicate horizontal and vertical lines
 #DISTANCE_THRESHOLD = 3
