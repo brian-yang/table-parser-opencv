@@ -45,8 +45,8 @@ def verify_table(contour, intersections):
 Creates the build directory if it doesn't already exist."
 """
 def mkdir(path):
-    if not os.path.exists("build/images/"):
-        os.makedirs("build/images/")
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 ## Remove duplicate horizontal and vertical lines
 #DISTANCE_THRESHOLD = 3

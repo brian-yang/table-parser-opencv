@@ -13,14 +13,15 @@ folder = "data/"
 image = cv.imread(folder + "table.jpg")
 
 # Resize image
-# size = (800, 900) # rows and columns in image
-# resized = cv.resize(image, size)
+#size = (image.shape[1] * 2, image.shape[0] * 2) # rows and columns in image
+#resized = cv.resize(image, size)
 
 # Convert resized RGB image to grayscale
 NUM_CHANNELS = 3
 if len(image.shape) == NUM_CHANNELS:
     grayscale = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-
+cv.waitKey(0)
+cv.imshow("grayscale", grayscale)
 # =====================================================
 # IMAGE FILTERING (using adaptive thresholding)
 # =====================================================
@@ -103,60 +104,37 @@ for i in range(len(contours)):
 
     # Store joint coordinates in the table instance
     table.set_joints(joint_coords)
-    table.print_joints()
 
     tables.append(table)
-
-    print(table.get_table_entries())
 
     #cv.rectangle(image, (table.x, table.y), (table.x + table.w, table.y + table.h), (0, 255, 0), 1, 8, 0)
     #cv.imshow("tables", image)
     #cv.waitKey(0)
 
-utils.mkdir("build/images")
+out = "bin/images/"
+table_name = "table.jpg"
+
+utils.mkdir(out)
 
 for table in tables:
     table_entries = table.get_table_entries()
 
     table_roi = image[table.y:table.y + table.h, table.x:table.x + table.w]
+    mult = 3
+    table_roi = cv.resize(table_roi, (table.w * mult, table.h * mult))
+
     cv.imshow("table", table_roi)
     cv.waitKey(0)
 
-    cv.imwrite("build/images/table.jpg", table_roi)
+    cv.imwrite(out + table_name, table_roi)
 
     for row in table_entries:
         for entry in row:
-            entry_roi = table_roi[entry[1]:entry[1] + entry[3], entry[0]:entry[0] + entry[2]]
+            entry_roi = table_roi[entry[1] * mult: (entry[1] + entry[3]) * mult, entry[0] * mult:(entry[0] + entry[2]) * mult]
             cv.imshow("entry", entry_roi)
             cv.waitKey(0)
-            cv.imwrite("build/images/test.jpg", entry_roi)
+            cv.imwrite(out + "test.jpg", entry_roi)
 
-image = Image.open("build/images/test.jpg")
+image = Image.open(out + "test.jpg")
 print(tesserocr.image_to_text(image))
-#with PyTessBaseAPI() as api:
-    #api.SetImageFile("build/images/test.jpg")
-    #print(api.GetUTF8Text())
-    #print(api.AllWordConfidences())
 
-
-# Identify table borders on tables
-#for i in range(len(regions_of_interest)):
-#    edges = cv.Canny(regions_of_interest[i], 200, 300, apertureSize = 3) # edge detection - edges include lines, curves, etc.
-#    lines = cv.HoughLinesP(edges, 1, np.pi/180, 120, minLineLength = 70, maxLineGap = 20) # line detection
-#
-#    table_borders = []
-#    # print lines
-#    for j in range(len(lines)):
-#        table_borders.append(lines[j][0].tolist())
-#
-#    (horizontal_borders, vertical_borders) = utils.sort_lines(table_borders)
-#
-#    for border in horizontal_borders:
-#        cv.line(regions_of_interest[i], (border[0], border[1]), (border[2], border[3]), (0, 0, 255), 2)
-#
-#    for border in vertical_borders:
-#        cv.line(regions_of_interest[i], (border[0], border[1]), (border[2], border[3]), (0, 0, 255), 2)
-#
-#    cv.imshow("roi", regions_of_interest[i])
-#    cv.waitKey(0)
-#    print()
