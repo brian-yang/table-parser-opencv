@@ -8,4 +8,4 @@ Take lab reports or any papers with tables in them, and instantly extract those 
 ## Run
 `python find_tables.py`
 
-The images should be in the build/images folder. Note that you may need to clean the images before Tesseract can recognize them, so please run the textcleaner shell script with the images as input.
+The images should be in the bin/images folder. Note that you may need to clean the images before Tesseract can recognize them, so please run the textcleaner shell script with the images as input.
