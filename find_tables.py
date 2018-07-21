@@ -2,9 +2,7 @@ import numpy as np
 import cv2 as cv
 import utils
 from table import Table
-import tesserocr
 from PIL import Image
-
 # =====================================================
 # IMAGE LOADING
 # =====================================================
@@ -20,8 +18,6 @@ image = cv.imread(folder + "table.jpg")
 NUM_CHANNELS = 3
 if len(image.shape) == NUM_CHANNELS:
     grayscale = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-cv.waitKey(0)
-cv.imshow("grayscale", grayscale)
 # =====================================================
 # IMAGE FILTERING (using adaptive thresholding)
 # =====================================================
@@ -111,8 +107,9 @@ for i in range(len(contours)):
     #cv.imshow("tables", image)
     #cv.waitKey(0)
 
-out = "bin/images/"
+out = "bin/"
 table_name = "table.jpg"
+psm = 6
 
 utils.mkdir(out)
 
@@ -123,18 +120,19 @@ for table in tables:
     mult = 3
     table_roi = cv.resize(table_roi, (table.w * mult, table.h * mult))
 
-    cv.imshow("table", table_roi)
-    cv.waitKey(0)
-
     cv.imwrite(out + table_name, table_roi)
 
+    num_img = 0
     for row in table_entries:
         for entry in row:
             entry_roi = table_roi[entry[1] * mult: (entry[1] + entry[3]) * mult, entry[0] * mult:(entry[0] + entry[2]) * mult]
-            cv.imshow("entry", entry_roi)
-            cv.waitKey(0)
-            cv.imwrite(out + "test.jpg", entry_roi)
+            utils.showImg("entry", entry_roi)
 
-image = Image.open(out + "test.jpg")
-print(tesserocr.image_to_text(image))
+            fname = out + "table/cell" + str(num_img) + ".jpg"
+            utils.mkdir("bin/table/")
+            cv.imwrite(fname, entry_roi)
 
+            fname = utils.run_textcleaner(fname, num_img)
+            utils.run_tesseract(fname, num_img, psm)
+            
+            num_img += 1

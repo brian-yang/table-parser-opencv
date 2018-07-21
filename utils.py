@@ -1,4 +1,7 @@
 import cv2 as cv
+import pytesseract as tess
+from PIL import Image
+import subprocess as s
 import os
 
 """
@@ -47,6 +50,31 @@ Creates the build directory if it doesn't already exist."
 def mkdir(path):
     if not os.path.exists(path):
         os.makedirs(path)
+
+"""
+Displays an image with opencv for durationMillis milliseconds
+"""
+def showImg(name, matrix, durationMillis = 0):
+    cv.imshow(name, matrix)
+    cv.waitKey(durationMillis)
+
+def run_textcleaner(filename, img_id):
+    mkdir("bin/cleaned/")
+    cleaned_file = "bin/cleaned/cleaned" + str(img_id) + ".jpg"
+    s.call(["./textcleaner", "-g", "-e", "none", "-f", str(10), "-o", str(5), filename, cleaned_file])
+    return cleaned_file
+
+def run_tesseract(filename, img_id, psm):
+    mkdir("bin/extracted/")
+    image = Image.open(filename)
+    language = 'eng'
+    configuration = "-psm " + str(psm) + " "
+
+    text = tess.image_to_string(image, lang=language, config=configuration)
+    if len(text.strip()) == 0:
+        configuration += "-c tessedit_char_whitelist=0123456789"
+        text = tess.image_to_string(image, lang=language, config=configuration)
+    print(text)
 
 ## Remove duplicate horizontal and vertical lines
 #DISTANCE_THRESHOLD = 3
