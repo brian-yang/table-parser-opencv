@@ -110,14 +110,17 @@ for i in range(len(contours)):
 out = "bin/"
 table_name = "table.jpg"
 psm = 6
+oem = 3
+mult = 3
 
 utils.mkdir(out)
+utils.mkdir("bin/table/")
 
+table_text = []
 for table in tables:
     table_entries = table.get_table_entries()
 
     table_roi = image[table.y:table.y + table.h, table.x:table.x + table.w]
-    mult = 3
     table_roi = cv.resize(table_roi, (table.w * mult, table.h * mult))
 
     cv.imwrite(out + table_name, table_roi)
@@ -126,13 +129,14 @@ for table in tables:
     for row in table_entries:
         for entry in row:
             entry_roi = table_roi[entry[1] * mult: (entry[1] + entry[3]) * mult, entry[0] * mult:(entry[0] + entry[2]) * mult]
-            utils.showImg("entry", entry_roi)
 
             fname = out + "table/cell" + str(num_img) + ".jpg"
-            utils.mkdir("bin/table/")
             cv.imwrite(fname, entry_roi)
 
             fname = utils.run_textcleaner(fname, num_img)
-            utils.run_tesseract(fname, num_img, psm)
-            
+            text = utils.run_tesseract(fname, num_img, psm, oem)
+            table_text.append(text)
+
             num_img += 1
+
+print(table_text)

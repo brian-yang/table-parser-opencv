@@ -58,55 +58,33 @@ def showImg(name, matrix, durationMillis = 0):
     cv.imshow(name, matrix)
     cv.waitKey(durationMillis)
 
+"""
+Clean the image by using the textcleaner script
+"""
 def run_textcleaner(filename, img_id):
     mkdir("bin/cleaned/")
+
+    # Run textcleaner
     cleaned_file = "bin/cleaned/cleaned" + str(img_id) + ".jpg"
     s.call(["./textcleaner", "-g", "-e", "none", "-f", str(10), "-o", str(5), filename, cleaned_file])
+
     return cleaned_file
 
-def run_tesseract(filename, img_id, psm):
+"""
+Run tesseract to perform optical character recognition (OCR)
+"""
+def run_tesseract(filename, img_id, psm, oem):
     mkdir("bin/extracted/")
+
     image = Image.open(filename)
     language = 'eng'
-    configuration = "-psm " + str(psm) + " "
+    configuration = "-psm " + str(psm) + " -oem" + str(oem)
 
+    # Run tesseract
     text = tess.image_to_string(image, lang=language, config=configuration)
     if len(text.strip()) == 0:
-        configuration += "-c tessedit_char_whitelist=0123456789"
+        configuration += " -c tessedit_char_whitelist=0123456789"
         text = tess.image_to_string(image, lang=language, config=configuration)
-    print(text)
+    #print(text)
 
-## Remove duplicate horizontal and vertical lines
-#DISTANCE_THRESHOLD = 3
-#def remove_duplicates(lines):
-#    for i in range(len(lines)):
-#        for j in range(i + 1, len(lines)):
-#            if j >= len(lines):
-#                continue
-#
-#            score = 0
-#            for coord in range(len(lines[i])):
-#                if abs(lines[i][coord] - lines[j][coord]) <= DISTANCE_THRESHOLD:
-#                    score += 1
-#
-#            if score == len(lines[i]):
-#                lines.pop(j)
-#
-## Get the horizontal and vertical lines in the table image
-#def sort_lines(lines):
-#    horizontal_lines= []
-#    vertical_lines = []
-#
-#    for i in range(len(lines)):
-#        # first check if the line is horizontal or vertical
-#        if abs(lines[i][0] - lines[i][2]) < 2:
-#            vertical_lines.append(lines[i])
-#        elif abs(lines[i][1] - lines[i][3]) < 2:
-#            horizontal_lines.append(lines[i])
-#
-#    removeDuplicates(horizontal_lines)
-#    removeDuplicates(vertical_lines)
-#
-#    return horizontal_lines, vertical_lines
-
-
+    return text
