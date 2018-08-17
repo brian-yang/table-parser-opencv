@@ -1,4 +1,4 @@
 run:
 	python find_tables.py
 clean:
-	rm -rf bin __pycache__
+	rm -rf excel bin __pycache__

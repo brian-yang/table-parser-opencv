@@ -3,6 +3,8 @@ import cv2 as cv
 import utils
 from table import Table
 from PIL import Image
+import xlsxwriter
+
 # =====================================================
 # IMAGE LOADING
 # =====================================================
@@ -18,6 +20,7 @@ image = cv.imread(folder + "table.jpg")
 NUM_CHANNELS = 3
 if len(image.shape) == NUM_CHANNELS:
     grayscale = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+
 # =====================================================
 # IMAGE FILTERING (using adaptive thresholding)
 # =====================================================
@@ -107,6 +110,9 @@ for i in range(len(contours)):
     #cv.imshow("tables", image)
     #cv.waitKey(0)
 
+# =====================================================
+# OCR AND WRITING TEXT TO EXCEL
+# =====================================================
 out = "bin/"
 table_name = "table.jpg"
 psm = 6
@@ -116,8 +122,12 @@ mult = 3
 utils.mkdir(out)
 utils.mkdir("bin/table/")
 
-table_text = []
+utils.mkdir("excel/")
+workbook = xlsxwriter.Workbook('excel/tables.xlsx')
+
 for table in tables:
+    worksheet = workbook.add_worksheet()
+    
     table_entries = table.get_table_entries()
 
     table_roi = image[table.y:table.y + table.h, table.x:table.x + table.w]
@@ -126,8 +136,10 @@ for table in tables:
     cv.imwrite(out + table_name, table_roi)
 
     num_img = 0
-    for row in table_entries:
-        for entry in row:
+    for i in range(len(table_entries)):
+        row = table_entries[i]
+        for j in range(len(row)):
+            entry = row[j]
             entry_roi = table_roi[entry[1] * mult: (entry[1] + entry[3]) * mult, entry[0] * mult:(entry[0] + entry[2]) * mult]
 
             fname = out + "table/cell" + str(num_img) + ".jpg"
@@ -135,8 +147,9 @@ for table in tables:
 
             fname = utils.run_textcleaner(fname, num_img)
             text = utils.run_tesseract(fname, num_img, psm, oem)
-            table_text.append(text)
 
             num_img += 1
+ 
+            worksheet.write(i, j, text)
 
-print(table_text)
+workbook.close()
