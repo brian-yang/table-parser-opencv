@@ -3,7 +3,7 @@ Take lab reports or any papers with tables in them, and instantly extract those 
 ## Installation
 1. Install OpenCV version > 3.0.
 2. Install Tesseract OCR (used to recognize the text in the tables).
-    - `sudo apt-get instsall tesseract-ocr libtesseract-dev libleptonica-dev`
+    - `sudo apt-get install tesseract-ocr libtesseract-dev libleptonica-dev`
     - `pip install pytesseract`
     - `pip install xlsxwriter` 
 ## Run
