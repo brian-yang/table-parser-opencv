@@ -5,7 +5,8 @@ Take lab reports or any papers with tables in them, and instantly extract those 
 2. Install Tesseract OCR (used to recognize the text in the tables).
     - `sudo apt-get install tesseract-ocr libtesseract-dev libleptonica-dev`
     - `pip install pytesseract`
-    - `pip install xlsxwriter` 
+    - `pip install xlsxwriter`
+    - `pip install pdf2image`
 ## Run
 1. Run `make target=<path_to_image_or_pdf>` (or if `make` is not installed, then run `python main.py <path_to_image_or_pdf>`) on the command line.
 
