@@ -26,7 +26,6 @@ else:
 
 ext_img.save("data/target.jpg", "JPEG")
 image = cv.imread("data/target.jpg")
-utils.showImg("original", image)
 
 # Convert resized RGB image to grayscale
 NUM_CHANNELS = 3
