@@ -1,7 +1,7 @@
 # spreadsheet-images
 Take lab reports or any papers with tables in them, and instantly extract those tables and convert them to Excel spreadsheets.
 ## Installation
-1. Install (OpenCV)[https://www.pyimagesearch.com/2015/06/22/install-opencv-3-0-and-python-2-7-on-ubuntu/] version > 3.0.
+1. Install [OpenCV](https://www.pyimagesearch.com/2015/06/22/install-opencv-3-0-and-python-2-7-on-ubuntu/) version > 3.0.
 2. Install Tesseract OCR (used to recognize the text in the tables).
     - `sudo apt-get install tesseract-ocr libtesseract-dev libleptonica-dev`
     - `pip install pytesseract`
