@@ -7,7 +7,6 @@ Take lab reports or any papers with tables in them, and instantly extract those 
     - `pip install pytesseract`
     - `pip install xlsxwriter` 
 ## Run
-1. Replace the image in `data/` named `table.jpg` with your own image.
-2. Run `make` (or if `make` is not installed, then run `python main.py`) on the command line.
+1. Run `make target=<path_to_image_or_pdf>` (or if `make` is not installed, then run `python main.py <path_to_image_or_pdf>`) on the command line.
 
 The resulting Excel spreadsheet should be in the `excel/`folder named `tables.xlsx`. Each table will have its own separate sheet when the file is opened.

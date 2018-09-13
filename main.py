@@ -4,17 +4,29 @@ import utils
 from table import Table
 from PIL import Image
 import xlsxwriter
+import sys
+from pdf2image import convert_from_path
 
 # =====================================================
 # IMAGE LOADING
 # =====================================================
-# Load the image
-folder = "data/"
-image = cv.imread(folder + "table.jpg")
+if len(sys.argv) < 2:
+    print("Usage: python main.py <img_path>")
+    sys.exit(1)
 
-# Resize image
-#size = (image.shape[1] * 2, image.shape[0] * 2) # rows and columns in image
-#resized = cv.resize(image, size)
+path = sys.argv[1]
+if not path.endswith(".pdf") and not path.endswith(".jpg"):
+    print("Must use a pdf or a jpg image to run the program.")
+    sys.exit(1)
+
+if path.endswith(".pdf"):
+    ext_img = convert_from_path(path)[0]
+else:
+    ext_img = Image.open(path)
+
+ext_img.save("data/target.jpg", "JPEG")
+image = cv.imread("data/target.jpg")
+utils.showImg("original", image)
 
 # Convert resized RGB image to grayscale
 NUM_CHANNELS = 3
@@ -86,6 +98,8 @@ tables = [] # list of tables
 for i in range(len(contours)):
     # Verify that region of interest is a table
     (rect, table_joints) = utils.verify_table(contours[i], intersections)
+    if rect == None or table_joints == None:
+        continue
 
     # Create a new instance of a table
     table = Table(rect[0], rect[1], rect[2], rect[3])

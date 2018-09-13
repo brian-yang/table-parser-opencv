@@ -16,13 +16,13 @@ Verify if the region inside a contour is a table
 If it is a table, returns the bounding rect
 and the table joints. Else return None.
 """
-MIN_TABLE_AREA = 100 # min table area to be considered a table
+MIN_TABLE_AREA = 50 # min table area to be considered a table
 EPSILON = 3 # epsilon value for contour approximation
 def verify_table(contour, intersections):
     area = cv.contourArea(contour)
 
     if (area < MIN_TABLE_AREA):
-        return None
+        return (None, None)
 
     # approxPolyDP approximates a polygonal curve within the specified precision
     curve = cv.approxPolyDP(contour, EPSILON, True)
@@ -40,7 +40,7 @@ def verify_table(contour, intersections):
     # If less than 5 table joints, then the image
     # is likely not a table
     if len(possible_table_joints) < 5:
-        return None
+        return (None, None)
 
     return rect, possible_table_joints
 
