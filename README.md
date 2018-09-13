@@ -8,6 +8,6 @@ Take lab reports or any papers with tables in them, and instantly extract those 
     - `pip install xlsxwriter`
     - `pip install pdf2image`
 ## Run
-1. Run `make target=<path_to_image_or_pdf>` (or if `make` is not installed, then run `python main.py <path_to_image_or_pdf>`) on the command line.
+1. Run `make target=<filepath>` (or if `make` is not installed, then run `python main.py <filepath>`) on the command line where filepath is the path to the target image or PDF.
 
 The resulting Excel spreadsheet should be in the `excel/`folder named `tables.xlsx`. Each table will have its own separate sheet when the file is opened.
