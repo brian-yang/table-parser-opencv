@@ -82,11 +82,11 @@ utils.isolate_lines(vertical, vertical_structure)
 # =====================================================
 # TABLE EXTRACTION
 # =====================================================
-# Create an image mask with just the horizontal 
+# Create an image mask with just the horizontal
 # and vertical lines in the image. Then find
 # all contours in the mask.
 mask = horizontal + vertical
-(_, contours, _) = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+(contours, _) = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
 # Find intersections between the lines
 # to determine if the intersections are table joints.
@@ -102,7 +102,7 @@ for i in range(len(contours)):
 
     # Create a new instance of a table
     table = Table(rect[0], rect[1], rect[2], rect[3])
- 
+
     # Get an n-dimensional array of the coordinates of the table joints
     joint_coords = []
     for i in range(len(table_joints)):
@@ -140,7 +140,7 @@ workbook = xlsxwriter.Workbook('excel/tables.xlsx')
 
 for table in tables:
     worksheet = workbook.add_worksheet()
-    
+
     table_entries = table.get_table_entries()
 
     table_roi = image[table.y:table.y + table.h, table.x:table.x + table.w]
@@ -162,7 +162,7 @@ for table in tables:
             text = utils.run_tesseract(fname, num_img, psm, oem)
 
             num_img += 1
- 
+
             worksheet.write(i, j, text)
 
 workbook.close()

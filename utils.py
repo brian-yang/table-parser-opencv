@@ -34,7 +34,7 @@ def verify_table(contour, intersections):
     # Format is in row-column order (as finding the ROI involves numpy arrays)
     # format: image_mat[rect.y: rect.y + rect.h, rect.x: rect.x + rect.w]
     possible_table_region = intersections[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]]
-    (_, possible_table_joints, _) = cv.findContours(possible_table_region, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)
+    (possible_table_joints, _) = cv.findContours(possible_table_region, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)
 
     # Determines the number of table joints in the image
     # If less than 5 table joints, then the image
@@ -78,7 +78,7 @@ def run_tesseract(filename, img_id, psm, oem):
 
     image = Image.open(filename)
     language = 'eng'
-    configuration = "-psm " + str(psm) + " -oem" + str(oem)
+    configuration = "--psm " + str(psm) + " --oem " + str(oem)
 
     # Run tesseract
     text = tess.image_to_string(image, lang=language, config=configuration)
