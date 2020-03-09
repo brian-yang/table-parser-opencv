@@ -24,7 +24,7 @@ if path.endswith(".pdf"):
 else:
     ext_img = Image.open(path)
 
-ext_img.save("data/target.jpg", "JPEG")
+ext_img.save("data/target.png", "PNG")
 image = cv.imread("data/target.jpg")
 
 # Convert resized RGB image to grayscale
