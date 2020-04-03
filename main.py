@@ -25,7 +25,7 @@ else:
     ext_img = Image.open(path)
 
 ext_img.save("data/target.png", "PNG")
-image = cv.imread("data/target.jpg")
+image = cv.imread("data/target.png")
 
 # Convert resized RGB image to grayscale
 NUM_CHANNELS = 3
