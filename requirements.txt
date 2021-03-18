@@ -1,6 +1,6 @@
 numpy==1.16.0
 opencv-python==4.0.0.21
 pdf2image==1.4.0
-Pillow==6.2.2
+Pillow==8.1.1
 pytesseract==0.2.6
 XlsxWriter==1.1.2
